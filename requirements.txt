@@ -19,3 +19,4 @@ sqlparse==0.5.2
 tzdata==2024.2
 Werkzeug==3.1.3
 dj_database_url==2.1.0
+gunicorn==21.2.0   👈 हे शेवटी टाक
