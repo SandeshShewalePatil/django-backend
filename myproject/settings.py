@@ -22,9 +22,9 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Security settings
-SECRET_KEY = 'django-insecure-kotm0mk=4ri*m8j4onp6qsth3x-qm#d8=y5=@kvh_!f*c(dj%a'
-DEBUG = True
-ALLOWED_HOSTS = ['*']
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-kotm0mk=4ri*m8j4onp6qsth3x-qm#d8=y5=@kvh_!f*c(dj%a')
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+ALLOWED_HOSTS = ['*']  # For production: Add your Render URL here instead of '*'
 
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True
@@ -45,7 +45,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise middleware added
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
