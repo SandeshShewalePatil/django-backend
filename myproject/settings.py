@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from datetime import timedelta
 import dj_database_url
-import pymysql
+# import pymysql
 from firebase_admin import credentials
 import firebase_admin
 
@@ -73,25 +73,41 @@ TEMPLATES = [
 ]
 
 # Database
-database_url = os.environ.get('DATABASE_URL')
+# Database (Render PostgreSQL Safe Setup)
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
-if database_url:
+if DATABASE_URL:
     DATABASES = {
-        'default': dj_database_url.parse(database_url)
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
     }
 else:
+    # Temporary SQLite for build phase only
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'freshnest_db',
-            'HOST': 'localhost',
-            'USER': 'root',
-            'PASSWORD': ''
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+    
+# database_url = os.environ.get('DATABASE_URL')
 
-# MySQL connector
-pymysql.install_as_MySQLdb()
+# if database_url:
+#     DATABASES = {
+#         'default': dj_database_url.parse(database_url)
+#     }
+# else:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.mysql',
+#             'NAME': 'freshnest_db',
+#             'HOST': 'localhost',
+#             'USER': 'root',
+#             'PASSWORD': ''
+#         }
+#     }
+
+# # MySQL connector
+# pymysql.install_as_MySQLdb()
 
 # Static files
 STATIC_URL = '/static/'
