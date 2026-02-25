@@ -17,6 +17,19 @@ from .serializers import (
     CartSerializer,
 )
 
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Admin
+@api_view(['POST'])
+def create_admin(request):
+    email = request.data.get('email')
+    password = request.data.get('password')
+
+    admin = Admin.objects.create(email=email, password=password)
+
+    return Response({"message": "Admin created successfully"})
+
 # Admin साठी Login API
 class AdminLoginView(APIView):
     def post(self, request):

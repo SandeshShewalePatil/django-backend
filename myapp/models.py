@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class Admin(models.Model):
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=255)
+
 # ---------------------------------------------------------------------------------------------------------
 # Admin Login साठी Model
 class Admin(models.Model):
