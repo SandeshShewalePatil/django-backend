@@ -12,12 +12,8 @@ from django.conf.urls.static import static
 
 router = DefaultRouter()
 router.register(r'product', ProductViewSet)  # प्रॉडक्टसाठी CRUD endpoints auto-create होतात
-from .views import create_admin
 
 urlpatterns = [
-
-    path('create-admin/', create_admin),
-
     path('admin/', admin.site.urls),  # Django admin panel साठी
 
     path('', include(router.urls)),  # ProductViewSet साठी default CRUD endpoints
