@@ -79,6 +79,9 @@ TEMPLATES = [
 # Database (Render PostgreSQL)
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
+if not DATABASE_URL:
+    raise Exception("DATABASE_URL not set in environment variables")
+
 DATABASES = {
     'default': dj_database_url.parse(DATABASE_URL)
 }
