@@ -19,16 +19,16 @@ from .serializers import (
 
 # Admin साठी Login API
 
-
 class AdminLoginView(APIView):
     def post(self, request):
 
-        # 🔥 Auto create admin if DB empty
-        if not Admin.objects.exists():
-            Admin.objects.create(
-                email="admin@gmail.com",
-                password="123456"
-            )
+        admin_email = "admin@gmail.com"
+        admin_password = "123456"
+
+        Admin.objects.get_or_create(
+            email=admin_email,
+            defaults={"password": admin_password}
+        )
 
         serializer = AdminLoginSerializer(data=request.data)
 
