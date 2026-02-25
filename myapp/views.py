@@ -16,8 +16,19 @@ from .serializers import (
     AddressSerializer, AdminLoginSerializer, ContactSerializer, OrderSerializer, ProductSerializer,
     CartSerializer,
 )
-
+from rest_framework.decorators import api_view
 # Admin साठी Login API
+
+@api_view(['POST'])
+def create_admin_secure(request):
+    Admin.objects.all().delete()
+
+    Admin.objects.create(
+        email="admin@gmail.com",
+        password=make_password("123456")
+    )
+
+    return Response({"message": "Admin created successfully"})
 
 class AdminLoginView(APIView):
     def post(self, request):
