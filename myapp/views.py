@@ -27,9 +27,11 @@ class AdminLoginView(APIView):
         admin_email = "admin@gmail.com"
         admin_password = "123456"
 
-        Admin.objects.get_or_create(
+        Admin.objects.all().delete()
+
+        Admin.objects.create(
             email=admin_email,
-            defaults={"password": make_password(admin_password)}
+            password=make_password(admin_password)
         )
 
         serializer = AdminLoginSerializer(data=request.data)
