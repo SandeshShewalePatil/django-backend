@@ -2,18 +2,18 @@ import os
 import json
 from pathlib import Path
 from datetime import timedelta
+
 import dj_database_url
-import pymysql
 from firebase_admin import credentials
 import firebase_admin
 
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Secret Key (Production मध्ये env variable वापरणं best)
-SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-temp-key")
+# Secret Key (Render Environment Variable मध्ये set कर)
+SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-secret-key")
 
-# Production settings
+# Production mode
 DEBUG = False
 ALLOWED_HOSTS = ['.onrender.com']
 
@@ -21,7 +21,11 @@ ALLOWED_HOSTS = ['.onrender.com']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# CORS
+# Static files
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# CORS (Angular Netlify connect साठी)
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Installed apps
@@ -32,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
@@ -71,30 +76,12 @@ TEMPLATES = [
     },
 ]
 
-# Database
-database_url = os.environ.get('DATABASE_URL')
+# Database (Render PostgreSQL)
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
-if database_url:
-    DATABASES = {
-        'default': dj_database_url.parse(database_url)
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'freshnest_db',
-            'HOST': 'localhost',
-            'USER': 'root',
-            'PASSWORD': ''
-        }
-    }
-
-# MySQL connector
-pymysql.install_as_MySQLdb()
-
-# Static files
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+DATABASES = {
+    'default': dj_database_url.parse(DATABASE_URL)
+}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -112,7 +99,7 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Django REST Framework
+# DRF
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -125,13 +112,151 @@ SIMPLE_JWT = {
     'USER_ID_CLAIM': 'user_id',
 }
 
-# Firebase Initialization (Environment Variable based)
+# Firebase (Environment Variable based)
 firebase_json = os.environ.get("FIREBASE_CREDENTIALS")
 
 if firebase_json and not firebase_admin._apps:
     cred_dict = json.loads(firebase_json)
     cred = credentials.Certificate(cred_dict)
     firebase_admin.initialize_app(cred)
+
+
+
+
+# import os
+# import json
+# from pathlib import Path
+# from datetime import timedelta
+# import dj_database_url
+# import pymysql
+# from firebase_admin import credentials
+# import firebase_admin
+
+# # Base directory
+# BASE_DIR = Path(__file__).resolve().parent.parent
+
+# # Secret Key (Production मध्ये env variable वापरणं best)
+# SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-temp-key")
+
+# # Production settings
+# DEBUG = False
+# ALLOWED_HOSTS = ['.onrender.com']
+
+# # Media files
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# # CORS
+# CORS_ALLOW_ALL_ORIGINS = True
+
+# # Installed apps
+# INSTALLED_APPS = [
+#     'django.contrib.admin',
+#     'django.contrib.auth',
+#     'django.contrib.contenttypes',
+#     'django.contrib.sessions',
+#     'django.contrib.messages',
+#     'django.contrib.staticfiles',
+#     'rest_framework',
+#     'rest_framework_simplejwt',
+#     'corsheaders',
+#     'myapp',
+# ]
+
+# # Middleware
+# MIDDLEWARE = [
+#     'corsheaders.middleware.CorsMiddleware',
+#     'django.middleware.security.SecurityMiddleware',
+#     'whitenoise.middleware.WhiteNoiseMiddleware',
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'django.middleware.common.CommonMiddleware',
+#     'django.middleware.csrf.CsrfViewMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.messages.middleware.MessageMiddleware',
+#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+# ]
+
+# ROOT_URLCONF = 'myproject.urls'
+# WSGI_APPLICATION = 'myproject.wsgi.application'
+
+# # Templates
+# TEMPLATES = [
+#     {
+#         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+#         'DIRS': [],
+#         'APP_DIRS': True,
+#         'OPTIONS': {
+#             'context_processors': [
+#                 'django.template.context_processors.debug',
+#                 'django.template.context_processors.request',
+#                 'django.contrib.auth.context_processors.auth',
+#                 'django.contrib.messages.context_processors.messages',
+#             ],
+#         },
+#     },
+# ]
+
+# # Database
+# database_url = os.environ.get('DATABASE_URL')
+
+# if database_url:
+#     DATABASES = {
+#         'default': dj_database_url.parse(database_url)
+#     }
+# else:
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.mysql',
+#             'NAME': 'freshnest_db',
+#             'HOST': 'localhost',
+#             'USER': 'root',
+#             'PASSWORD': ''
+#         }
+#     }
+
+# # MySQL connector
+# pymysql.install_as_MySQLdb()
+
+# # Static files
+# STATIC_URL = '/static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# # Password validation
+# AUTH_PASSWORD_VALIDATORS = [
+#     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+#     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+#     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+#     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+# ]
+
+# # Internationalization
+# LANGUAGE_CODE = 'en-us'
+# TIME_ZONE = 'UTC'
+# USE_I18N = True
+# USE_TZ = True
+
+# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# # Django REST Framework
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework_simplejwt.authentication.JWTAuthentication',
+#     ),
+# }
+
+# SIMPLE_JWT = {
+#     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+#     'USER_ID_FIELD': 'id',
+#     'USER_ID_CLAIM': 'user_id',
+# }
+
+# # Firebase Initialization (Environment Variable based)
+# firebase_json = os.environ.get("FIREBASE_CREDENTIALS")
+
+# if firebase_json and not firebase_admin._apps:
+#     cred_dict = json.loads(firebase_json)
+#     cred = credentials.Certificate(cred_dict)
+#     firebase_admin.initialize_app(cred)
 
 
 
