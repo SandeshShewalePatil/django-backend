@@ -21,7 +21,7 @@ from .serializers import (
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Admin
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 def create_admin(request):
     email = request.data.get('email')
     password = request.data.get('password')
