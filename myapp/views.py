@@ -22,12 +22,14 @@ from .serializers import (
 class AdminLoginView(APIView):
     def post(self, request):
 
+        from django.contrib.auth.hashers import make_password
+
         admin_email = "admin@gmail.com"
         admin_password = "123456"
 
         Admin.objects.get_or_create(
             email=admin_email,
-            defaults={"password": admin_password}
+            defaults={"password": make_password(admin_password)}
         )
 
         serializer = AdminLoginSerializer(data=request.data)
