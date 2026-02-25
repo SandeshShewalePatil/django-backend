@@ -1,11 +1,10 @@
 from rest_framework import serializers
-from .models import Admin, Cart, Order, OrderItem, Product, ProductImage, Address
+from .models import Admin, Cart, Contact, Order, OrderItem, Product, ProductImage, Address
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password, check_password
 
 # ---------------------------------------------------------------------------------------------------
-# admin login check
-
+# Admin login तपासण्यासाठी Serializer
 class AdminLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
@@ -26,18 +25,16 @@ class AdminLoginSerializer(serializers.Serializer):
         # ✅ Return admin object
         data['admin_obj'] = admin
         return data
-    
-# ---------------------------------------------------------------------------------------------------
 
-# Product Image Serializer
+# ---------------------------------------------------------------------------------------------------
+# Product Image साठी Serializer
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductImage
         fields = ['id', 'image']
 
 # ---------------------------------------------------------------------------------------------------
-
-# Product Serializer with Images
+# Images सह Product साठी Serializer
 class ProductSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
 
@@ -46,8 +43,7 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'price', 'images']
 
 # ---------------------------------------------------------------------------------------------------
-
-# Default User Serializer
+# Default User साठी Serializer
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -61,8 +57,7 @@ class UserSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 # ---------------------------------------------------------------------------------------------------
-
-# Cart Serializer
+# Cart साठी Serializer
 class CartSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
     product_id = serializers.IntegerField(write_only=True)
@@ -73,16 +68,14 @@ class CartSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'subtotal']
 
 # ---------------------------------------------------------------------------------------------------
-
-# Address Serializer
+# Address साठी Serializer
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
         fields = ['full_name', 'phone', 'address', 'city', 'state', 'pincode']
 
 # ---------------------------------------------------------------------------------------------------
-
-# Order Item Serializer
+# Order मधील Item साठी Serializer
 class OrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
     product_images = ProductImageSerializer(source='product.images', many=True, read_only=True)
@@ -92,8 +85,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = ['id', 'product', 'product_name', 'product_images', 'quantity', 'price']
 
 # ---------------------------------------------------------------------------------------------------
-
-# Order Serializer
+# Order साठी Serializer
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     address = AddressSerializer()
@@ -104,3 +96,9 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['id', 'user_name', 'user_email', 'address', 'total_price', 'created_at', 'items']
 
+# ---------------------------------------------------------------------------------------------------
+# Contact Form साठी Serializer
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = '__all__'  # सर्व फील्ड्स घेण्यासाठी

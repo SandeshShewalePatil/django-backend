@@ -11,14 +11,13 @@ from django.contrib.auth.hashers import make_password
 from datetime import datetime, timedelta
 import jwt
 from django.conf import settings
-from .models import Cart, Order, OrderItem, Product , ProductImage
+from .models import Cart, Contact, Order, OrderItem, Product , ProductImage
 from .serializers import (
-    AddressSerializer, AdminLoginSerializer, OrderSerializer, ProductSerializer,
+    AddressSerializer, AdminLoginSerializer, ContactSerializer, OrderSerializer, ProductSerializer,
     CartSerializer,
 )
 
-
-# -------------------------------------------------------------------------------------------------------
+# Admin साठी Login API
 class AdminLoginView(APIView):
     def post(self, request):
         print("Request Data: ", request.data)
@@ -47,11 +46,9 @@ class AdminLoginView(APIView):
 
         print("Serializer Errors: ", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-# -------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------------------------------
-
-# User Registration
+# User नोंदणीसाठी API
 class RegisterUser(APIView):
     def post(self, request):
         username = request.data.get('username')
@@ -74,10 +71,9 @@ class RegisterUser(APIView):
         )
 
         return Response({'message': 'User registered successfully'}, status=status.HTTP_201_CREATED)
+# ---------------------------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------------------------------
-
-# User Login
+# User लॉगिनसाठी API
 class LoginUser(APIView):
     def post(self, request):
         email = request.data.get('email')
@@ -100,17 +96,15 @@ class LoginUser(APIView):
             'refresh': str(refresh),
             'access': str(refresh.access_token)
         })
+# ---------------------------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------------------------------
-
-# Product View (Public)
+# सर्व Product साठी ViewSet (Public)
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+# ---------------------------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------------------------------
-
-# Multiple Image Upload API
+# Product साठी Multiple Images Upload करण्याची API
 class ProductImageUploadView(APIView):
     def post(self, request, format=None):
         product_id = request.data.get('product_id')
@@ -128,10 +122,9 @@ class ProductImageUploadView(APIView):
             ProductImage.objects.create(product=product_instance, image=img)
 
         return Response({'message': 'Images uploaded successfully'}, status=status.HTTP_201_CREATED)
+# ---------------------------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------------------------------
-
-# Delete Product Images API
+# Product च्या सर्व Images Delete करण्याची API
 class DeleteProductImagesView(APIView):
     def delete(self, request, product_id):
         images = ProductImage.objects.filter(product_id=product_id)
@@ -139,11 +132,9 @@ class DeleteProductImagesView(APIView):
             image.image.delete()
             image.delete()
         return Response({'message': 'Product images deleted successfully.'}, status=status.HTTP_200_OK)
+# ---------------------------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------------------------------
-
-# Cart APIs
-
+# Cart मध्ये Product Add करणे आणि Cart Details मिळवण्यासाठी API
 class CartView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -173,7 +164,9 @@ class CartView(APIView):
         cart_items = Cart.objects.filter(user=user)
         serializer = CartSerializer(cart_items, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+# ---------------------------------------------------------------------------------------------------
 
+# Cart मध्ये Product ची Quantity Update करण्याची API
 class UpdateCartQuantityView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -189,7 +182,9 @@ class UpdateCartQuantityView(APIView):
             return Response({'message': 'Quantity updated successfully'}, status=status.HTTP_200_OK)
         except Cart.DoesNotExist:
             return Response({'message': 'Cart item not found'}, status=status.HTTP_404_NOT_FOUND)
+# ---------------------------------------------------------------------------------------------------
 
+# Cart मधून Product Delete करण्याची API
 class DeleteCartItemView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -201,11 +196,9 @@ class DeleteCartItemView(APIView):
             return Response({'message': 'Item removed from cart'}, status=status.HTTP_200_OK)
         except Cart.DoesNotExist:
             return Response({'message': 'Cart item not found'}, status=status.HTTP_404_NOT_FOUND)
+# ---------------------------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------------------------------
-
-# Checkout APIs
-
+# Checkout करण्यासाठी (Buy Now किंवा Cart Checkout) API
 class CheckoutView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -272,9 +265,9 @@ class CheckoutView(APIView):
 
         else:
             return Response({'error': 'Invalid checkout type!'}, status=status.HTTP_400_BAD_REQUEST)
+# ---------------------------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------------------------------
-
+# User च्या सर्व Order List साठी API
 class UserOrdersView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -284,9 +277,9 @@ class UserOrdersView(APIView):
         orders = Order.objects.filter(user=user).order_by('-created_at')
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
+# ---------------------------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------------------------------
-
+# User चा Order Cancel करण्यासाठी API
 class CancelOrderView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -298,9 +291,9 @@ class CancelOrderView(APIView):
             return Response({'message': 'Order cancelled successfully!'}, status=status.HTTP_200_OK)
         except Order.DoesNotExist:
             return Response({'error': 'Order not found!'}, status=status.HTTP_404_NOT_FOUND)
+# ---------------------------------------------------------------------------------------------------
 
-
-# -------------------------------------------------------------------------------------------------------
+# Admin साठी सर्व Orders List मिळवण्याची API
 class AdminOrderListView(APIView):
     authentication_classes = [AdminJWTAuthentication]
     permission_classes = [IsAuthenticated]
@@ -313,3 +306,29 @@ class AdminOrderListView(APIView):
         except Exception as e:
             print("Error in fetching orders: ", e)
             return Response({'error': 'Something went wrong'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+# ---------------------------------------------------------------------------------------------------
+
+# Contact Form Submit करण्यासाठी व सर्व Contact List मिळवण्यासाठी API
+class ContactView(APIView):
+    def post(self, request):
+        serializer = ContactSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Contact submitted successfully.'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get(self, request):
+        contacts = Contact.objects.all().order_by('-created_at')  # Optional: List all contacts
+        serializer = ContactSerializer(contacts, many=True)
+        return Response(serializer.data)
+# ---------------------------------------------------------------------------------------------------
+
+# Contact Data Delete करण्यासाठी API
+class ContactDeleteView(APIView):
+    def delete(self, request, pk):
+        try:
+            contact = Contact.objects.get(pk=pk)
+            contact.delete()
+            return Response({'message': 'Contact deleted successfully.'}, status=status.HTTP_200_OK)
+        except Contact.DoesNotExist:
+            return Response({'error': 'Contact not found.'}, status=status.HTTP_404_NOT_FOUND)

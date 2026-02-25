@@ -2,8 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 # ---------------------------------------------------------------------------------------------------------
-
-# admin login
+# Admin Login साठी Model
 class Admin(models.Model):
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=255)
@@ -12,8 +11,7 @@ class Admin(models.Model):
         return self.email
 
 # ---------------------------------------------------------------------------------------------------------
-
-# Product Model
+# Product साठी Model
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
@@ -23,8 +21,7 @@ class Product(models.Model):
         return self.name
 
 # ---------------------------------------------------------------------------------------------------------
-
-# Product Images Model
+# Product च्या Images साठी Model
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='product_images/')
@@ -33,8 +30,7 @@ class ProductImage(models.Model):
         return f"Image for {self.product.name}"
 
 # ---------------------------------------------------------------------------------------------------------
-
-# Cart Model
+# Cart साठी Model
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cart_items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -49,8 +45,7 @@ class Cart(models.Model):
         return f"{self.product.name} x {self.quantity} for {self.user.username}"
 
 # ---------------------------------------------------------------------------------------------------------
-
-# Order Model
+# Order साठी Model
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.ForeignKey('Address', on_delete=models.SET_NULL, null=True)
@@ -61,8 +56,7 @@ class Order(models.Model):
         return f'Order {self.id} by {self.user.username}'
 
 # ---------------------------------------------------------------------------------------------------------
-
-# OrderItem Model
+# Order Item साठी Model
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
@@ -73,8 +67,7 @@ class OrderItem(models.Model):
         return f'{self.product.name} x {self.quantity}'
 
 # ---------------------------------------------------------------------------------------------------------
-
-# Address Model
+# Address साठी Model
 class Address(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=100)
@@ -86,3 +79,15 @@ class Address(models.Model):
 
     def __str__(self):
         return f'{self.full_name} - {self.city}'
+
+# ---------------------------------------------------------------------------------------------------------
+# Contact Form साठी Model
+class Contact(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.subject}"
