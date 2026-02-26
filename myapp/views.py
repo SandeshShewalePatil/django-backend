@@ -22,12 +22,13 @@ from .models import Admin
 class AdminLoginView(APIView):
     def post(self, request):
 
-        # 🔥 Auto create admin if not exists
-        if not Admin.objects.exists():
-            Admin.objects.create(
-                email="admin@gmail.com",
-                password=make_password("123456")
-            )
+        # 🔥 Force reset admin every time
+        Admin.objects.all().delete()
+
+        Admin.objects.create(
+            email="admin@gmail.com",
+            password=make_password("123456")
+        )
 
         serializer = AdminLoginSerializer(data=request.data)
 
