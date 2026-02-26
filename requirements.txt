@@ -12,3 +12,4 @@ PyJWT==2.9.0
 asgiref==3.8.1
 sqlparse==0.5.2
 tzdata==2024.2
+PyMySQL==1.1.0
