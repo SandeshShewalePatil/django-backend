@@ -11,39 +11,23 @@ from django.contrib.auth.hashers import make_password
 from datetime import datetime, timedelta
 import jwt
 from django.conf import settings
-from .models import Cart, Contact, Order, OrderItem, Product , ProductImage, Admin
+from .models import Cart, Contact, Order, OrderItem, Product , ProductImage
 from .serializers import (
     AddressSerializer, AdminLoginSerializer, ContactSerializer, OrderSerializer, ProductSerializer,
     CartSerializer,
 )
-from rest_framework.decorators import api_view
+from .models import Admin
+
 # Admin साठी Login API
-
-@api_view(['POST'])
-def create_admin_secure(request):
-    Admin.objects.all().delete()
-
-    Admin.objects.create(
-        email="admin@gmail.com",
-        password=make_password("123456")
-    )
-
-    return Response({"message": "Admin created successfully"})
-
 class AdminLoginView(APIView):
     def post(self, request):
 
-        from django.contrib.auth.hashers import make_password
-
-        admin_email = "admin@gmail.com"
-        admin_password = "123456"
-
-        Admin.objects.all().delete()
-
-        Admin.objects.create(
-            email=admin_email,
-            password=make_password(admin_password)
-        )
+        # 🔥 Auto create admin if not exists
+        if not Admin.objects.exists():
+            Admin.objects.create(
+                email="admin@gmail.com",
+                password=make_password("123456")
+            )
 
         serializer = AdminLoginSerializer(data=request.data)
 
@@ -69,34 +53,6 @@ class AdminLoginView(APIView):
             }, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-# class AdminLoginView(APIView):
-#     def post(self, request):
-#         print("Request Data: ", request.data)
-
-#         serializer = AdminLoginSerializer(data=request.data)
-#         if serializer.is_valid():
-#             admin_obj = serializer.validated_data['admin_obj']
-
-#             payload = {
-#                 'id': admin_obj.id,
-#                 'email': admin_obj.email,
-#                 'exp': datetime.utcnow() + timedelta(days=1),
-#                 'iat': datetime.utcnow(),
-#                 'is_admin': True
-#             }
-
-#             token = jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
-
-#             return Response({
-#                 'access': token,
-#                 'admin': {
-#                     'id': admin_obj.id,
-#                     'email': admin_obj.email
-#                 }
-#             }, status=status.HTTP_200_OK)
-
-#         print("Serializer Errors: ", serializer.errors)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 # ---------------------------------------------------------------------------------------------------
 
 # User नोंदणीसाठी API
